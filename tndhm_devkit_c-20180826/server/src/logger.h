@@ -1,0 +1,11 @@
+int so_log_set_playername(char player_name[2][5][15]);
+int so_log_set_seat(int player_card[5][8][15]);
+int so_log_set_card(int player_card[5][8][15]);
+int so_log_set_oneplay(int player, int tables[8][15]);
+int so_log_set_result(int result[5]);
+int so_log_openfile();
+int so_log_closefile();
+int so_log_print_all();
+int so_log_init_onegame();
+int so_log_set_rules(char tmp_strings[15]);
+int so_log_rc(int flag);
