@@ -3,7 +3,10 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+#ifndef DAIHINMIN_H
+#define DAIHINMIN_H
 #include "daihinmin.h"
+#endif
 #include "connection.h"
 
 const int g_logging=0;                     //ログ取りをするか否かを判定するための変数
@@ -77,17 +80,9 @@ int main(int argc,char* argv[]){
 	//どのカードを出すかはここにかく
 	/////////////////////////////////////////////////////////////
 	if(state.onset==1){                //場にカードが無いとき
-	  if(state.rev==0){
-	    lead(select_cards,own_cards);    //通常時の提出用
-	  }else{
-	    leadRev(select_cards,own_cards); //革命時の提出用
-	  }
+	  lead(select_cards,own_cards);    //通常時の提出用
 	}else{                               //すでに場にカードがあるとき
-	  if(state.rev==0){
-	    follow(select_cards,own_cards);    //通常時の提出用 
-	  }else{
-	    followRev(select_cards,own_cards); //革命時の提出用
-	  } 
+	  follow(select_cards,own_cards);    //通常時の提出用 
 	}
 	/////////////////////////////////////////////////////////////
 	//アルゴリズムはここまで

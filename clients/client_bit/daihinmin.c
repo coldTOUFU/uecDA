@@ -6,8 +6,10 @@
 #include <sys/socket.h>
 #include <stdlib.h>
 
+#ifndef DAIHINMIN_H
+#define DAIHINMIN_H
 #include "daihinmin.h"
-
+#endif
 extern const int g_logging;
 
 void getState(int cards[8][15]){
@@ -284,385 +286,6 @@ int qtyOfCards(int cards[8][15]){
   return count;
 }
 
-
-
-void makeJKaidanTable(int tgt_cards[][15], int my_cards[][15]){
-  /*
-    渡されたカードテーブルmy_cardsから、ジョーカーを考慮し階段で出せるかどうかを解析し、
-    結果をテーブルtgt_cardsに格納する。
-  */
-  int i,j;
-  int count,noJcount;    //ジョーカーを使用した場合のカードの枚数,使用しない枚数
-  
-  clearTable(tgt_cards);         //テーブルのクリア
-  if(state.joker==1){            //jokerがあるとき
-    for(i=0;i<4;i++){            //各スート毎に走査し
-      count=1;
-      noJcount=0; 
-      for(j=13;j>=0;j--){        //順番にみて
-	if(my_cards[i][j]==1){   //カードがあるとき
-	  count++;               //2つのカウンタを進める
-	  noJcount++;
-	}
-	else{                    //カードがないとき
-	  count=noJcount+1;      //ジョーカーありの階段の枚数にジョーカー分を足す 
-	  noJcount=0;            //ジョーカーなしの階段の枚数をリセットする
-	}
-	
-	if(count>2){              //3枚以上のとき
-	  tgt_cards[i][j]=count;  //その枚数をテーブルに格納
-	}
-	else{
-	  tgt_cards[i][j]=0;      //その他は0にする
-	}
-      }
-    }
-  }
-
-  if(g_logging==1){
-    printf("make Joker kaidan \n");
-    outputTable(tgt_cards);
-  }
-}
-
-void makeKaidanTable(int tgt_cards[][15], int my_cards[][15]){
-  /*
-    渡されたカードテーブルmy_cardsから、階段で出せるかどうかを解析し、
-    結果をテーブルtgt_cardsに格納する。
-  */
-  int i,j;
-  int count;
-  
-  clearTable(tgt_cards);
-  for(i=0;i<4;i++){             //各スート毎に走査し
-    for(j=13,count=0;j>0;j--){  //順番にみて
-      if(my_cards[i][j]==1){    //カードがあるとき
-	count++;                //カウンタを進め
-      }
-      else{
-	count=0;                //カードがないときリセットする
-      }
-      
-      if(count>2){              //3枚以上のときその枚数をテーブルに格納
-	tgt_cards[i][j]=count;   
-      }
-      else{
-	tgt_cards[i][j]=0;     //その他は0にする
-      }
-    }
-  }
-  if(g_logging==1){
-    printf("make kaidan \n");
-    outputTable(tgt_cards);
-  }
-}
-
-void makeGroupTable(int tgt_cards[][15], int my_cards[][15]){
-  /*
-    渡されたカードテーブルmy_cardsから、2枚以上の枚数組で出せるかどうかを解析し、
-    結果をテーブルtgt_cardsに格納する。
-  */
-  int i,j;
-  int count;
-  
-  
-  clearTable(tgt_cards);
-  for(i=0;i<15;i++){  //それそれの強さのカードの枚数を数え
-    count=my_cards[0][i]+my_cards[1][i]+my_cards[2][i]+my_cards[3][i];
-    if(count>1){      //枚数が2枚以上のとき
-      for(j=0;j<4;j++){
-	if(my_cards[j][i]==1){    //カードを持っている部分に
-	  tgt_cards[j][i]=count; //その枚数を格納
-	}
-      }
-    }
-  }
-  if(g_logging==1){
-    printf("make group \n");
-    outputTable(tgt_cards);
-  }
-}
-
-void makeJGroupTable(int tgt_cards[][15], int my_cards[][15]){
-  /*
-    渡されたカードテーブルmy_cardsから、
-    ジョーカーを考慮し2枚以上の枚数組で出せるかどうかを解析し、
-    結果をテーブルtgt_cardsに格納する。
-  */
-  int i,j;
-  int count;
- 
-  clearTable(tgt_cards);
-  if(state.joker!=0){ 
-    for(i=0;i<14;i++){ //それそれの強さのカードの枚数を数え ジョーカーの分を加える
-      count=my_cards[0][i]+my_cards[1][i]+my_cards[2][i]+my_cards[3][i]+1;
-      if(count>1){     //枚数が2枚以上のとき
-	for(j=0;j<4;j++){
-	  if(my_cards[j][i]==1){   //カードを持っている部分に
-	    tgt_cards[j][i]=count; //その枚数を格納
-	  }
-	}
-      }
-    }
-  }
-  if(g_logging==1){
-    printf("make Joker group \n");
-    outputTable(tgt_cards);
-  }
-}
-
-
-void lowCards(int out_cards[8][15],int my_cards[8][15],int threshold){
-  /*
-    渡されたカードテーブルmy_cardsのカード部分を
-    threshold以上の部分は0でうめ,thresholdより低い部分をのこし、
-    カードテーブルout_cardsに格納する。
-  */
-  int i;
-  copyTable(out_cards,my_cards); //my_cardsをコピーして
-  for(i=threshold;i<15;i++){    //thresholdから15まで
-    out_cards[0][i]=0;          //0でうめる
-    out_cards[1][i]=0;
-    out_cards[2][i]=0;
-    out_cards[3][i]=0;
-  }
-}
-
-
-void highCards(int out_cards[8][15],int my_cards[8][15],int threshold){
-  /*
-    渡されたカードテーブルmy_cardsのカード部分を
-    threshold以下の部分は0でうめ,thresholdより高い部分をのこし
-    カードテーブルout_cardsに格納する
-  */
-  int i;
-  copyTable(out_cards,my_cards); //my_cardsをコピーして
-  for(i=0;i<=threshold;i++){    //0からthresholdまで
-    out_cards[0][i]=0;          //0でうめる
-    out_cards[1][i]=0;
-    out_cards[2][i]=0;
-    out_cards[3][i]=0;
-  } 
-}
-int nCards(int n_cards[8][15],int target[8][15],int n){
-  /*
-    n枚のペアあるいは階段のみをn_cards にのこす。このときテーブルにのる数字はnのみ。
-    カードが無いときは0,あるときは1をかえす。
-  */
-  int i,j,flag=0;         
-  clearTable(n_cards);          //テーブルをクリア
-  for(i=0;i<4;i++)           
-    for(j=0;j<15;j++)           //テーブル全体を走査し
-      if(target[i][j]==(int)n){ //nとなるものをみつけたとき
-      	n_cards[i][j]=n;
-	flag=1;                 //フラグをたて
-      }else{                    //n以外の場所は
-	n_cards[i][j]=0;        //0で埋める。
-      }
-  return flag;
-}
-
-void lockCards(int target_cards[8][15],int suit[5]){
-  /*
-    大域変数state.suitの１が立っているスートのみカードテーブルtarget_cardsに残す。
-  */
-  int i,j;
-  for(i=0;i<4;i++)
-    for(j=0;j<15;j++)
-      target_cards[i][j]*=suit[i]; //suit[i]==1 のときはそのまま,==0のとき0である。
-}
-
-void lowGroup(int out_cards[8][15],int my_cards[8][15],int group[8][15]) {
-  /*
-    渡された枚数組で出せるカードの情報をのせたgroupとカードテーブルmy_cardsから
-    最も低い枚数組を探し、見つけたらカードテーブルout_cardsにそのカードを載せる。
-  */
-  int i, j;					//カウンタ
-  int count = 0,qty=0;				//カードの枚数,総数
-  
-  clearTable(out_cards);
-  for(j=1; j<14; j++) {	                        //ランクが低い順に探索する 
-    for(i=0; i<4; i++) {
-      if(group[i][j] >1 ) {	        	//groupテーブルに2以上の数字を発見したら
-	out_cards[i][j] = 1;			//out_cardsにフラグを立てる
-	count++;
-	qty=group[i][j];
-      }
-    }
-    if(count >0) break;			//ループ脱出用フラグが立っていたら
-  }
-  
-  for(i=0; count<qty; i++) {
-    if(my_cards[i][j] == 0 && (state.lock==0||state.suit[i]==1)){	
-      out_cards[i][j] = 2;		//ジョーカー用フラグを立てる 
-      count++;
-    }
-  }
-}
-
-void highGroup(int out_cards[8][15],int my_cards[8][15],int group[8][15]) {
-  /*
-    渡された枚数組で出せるカードの情報をのせたgroupとカードテーブルmy_cardsから
-    最も高い枚数組を探し、見つけたらカードテーブルout_cardsにそのカードを載せる。
-  */
-  int i, j;					//カウンタ
-  int count = 0,qty=0;				//カードの枚数,総数
-  
-  clearTable(out_cards);
-  for(j=13; j>0; j--) {	                        //ランクが低い順に探索する 
-    for(i=0; i<4; i++) {
-      if(group[i][j] > 1) {	        	//groupテーブルに2以上の数字を発見したら
-	out_cards[i][j] = 1;			//out_cardsにフラグを立てる
-	count++;
-	qty=group[i][j];
-      }
-    }
-    if(count >0) break;			//ループ脱出用フラグが立っていたら
-  }
-  
-  for(i=0; count<qty; i++) {
-    if(my_cards[i][j] == 0 && (state.lock==0||state.suit[i]==1)){
-      out_cards[i][j] = 2;		//ジョーカー用フラグを立てる 
-      count++;
-    }
-  }
-}
-
-
-void lowSequence(int out_cards[8][15],int my_cards[8][15],int sequence[8][15]){
-  /*
-    渡された階段で出せるカードの情報をのせたgroupとカードテーブルmy_cardsから
-    最も低い階段を探し、見つけたらカードテーブルout_cardsにそのカードを載せる。
-  */
-  int i,j,lowvalue,lowline=0,lowcolumn=0;
-  
-  lowvalue = 0;
-  
-  clearTable(out_cards);
-  i = 0;
-  
-  //lowsequenceの発見
-  while((i < 15) && (lowvalue == 0)){ //階段テーブル中に階段が見つかるまで繰り返し
-    j = 0;
-    while(j < 4){
-      if(sequence[j][i] != 0){      //低い数字から調べ,階段テーブルが0以外だったら分岐
-	if(sequence[j][i] > lowvalue){ //同じ数字を起点として作られる階段の中で最長か否か
-	  lowvalue = sequence[j][i];   //最長だったら値と場所を保存
-	  lowline = j;
-	  lowcolumn = i;
-	}
-      }
-      j++;
-    }
-    if(lowvalue == 0){
-      i++;
-    }
-  }
-  
-  //out_cardsへの書出し
-  if(lowvalue != 0){              //階段が見つからなかったらout_cardsには書出さない
-    for(i = lowcolumn; i < (lowcolumn+lowvalue); i++){
-      if(my_cards[lowline][i] == 1){
-	out_cards[lowline][i] = 1;   //普通の手札として持っていたら1を立てる
-      }
-      else{
-	out_cards[lowline][i] = 2;        //持っていなかったらジョーカーなので2を立てる
-      }
-    }
-  }
-}
-
-void highSequence (int out_cards[8][15],int my_cards[8][15],int sequence[8][15]){
-  /*
-    渡された階段で出せるカードの情報をのせたgroupとカードテーブルmy_cardsから
-    最も高い階段を探し、見つけたらカードテーブルout_cardsにそのカードを載せる。
-  */
-  int i,j,k,highvalue,highline=0,highcolumn=0,prevalue;
-  highvalue = 0;
-
-  clearTable(out_cards);
-  i = 14;
-  
-  //highsequenceの発見
-  while((i > 0) && (highvalue == 0)){  //階段テーブル中に階段が見つかるまで繰り返し
-    j = 0;
-    while(j < 4){
-      k = -1;
-      if((sequence[j][i] != 0) && (my_cards[j][i] != 0)){//高い数字から調べ,階段テーブルが0以外だったら分岐
-	do{                       //見つけた階段の最高値から,最長の階段を探す
-	  if(sequence[j][i-k] >= highvalue){ //同じ最高値を持つ階段の中で最長か否か
-	    highvalue = sequence[j][i-k];  //最長だったら記録
-	    highline = j;
-	    highcolumn = i-k;
-	  }
-	  prevalue = sequence[j][i-k];
-	  k++;
-	}while((i-k >= 0) && (prevalue <= sequence[j][i-k]));
-	
-      }	
-      j++;	
-    }
-    if(highvalue == 0){
-      i--;
-    }
-  }
-
-  //out_cardsへの書出し
-  for(i = highcolumn; i < (highcolumn+highvalue); i++){
-    if(my_cards[highline][i] == 1){
-      out_cards[highline][i] = 1; //普通の手札として持っていたら1を立てる
-    }
-    else{
-      out_cards[highline][i] = 2;     //持っていなかったらジョーカーなので2を立てる
-    }
-  } 
-}
-
-//my_cards(手札)からペア,階段等の役のカードを除去したものをout_cardに格納する 
-void removeGroup(int out_cards[8][15],int my_cards[8][15],int group[8][15]){
-  /*
-    渡された枚数組で出せるカードの情報をのせたgroupとカードテーブルmy_cardsから
-    枚数組以外のカードを探し、カードテーブルout_cardsにそのカードを載せる。
-  */
-  int i,j;
-  
-  for (i = 0; i < 15; i++){
-    for(j = 0; j < 4; j++){
-      if((my_cards[j][i] == 1) && (group[j][i] == 0)){
-	out_cards[j][i] = 1;         //mycardsに存在し,かつ役テーブルにない場合1
-      }
-      else{
-	out_cards[j][i] = 0;             //それ以外(mycardsにないか,役テーブルにある)の場合0
-      }
-    }
-  }
-}
-
-void removeSequence(int out_cards[8][15],int my_cards[8][15],int sequence[8][15]){
-  /*
-    渡された階段で出せるカードの情報をのせたgroupとカードテーブルmy_cardsから
-    階段以外のカードを探し、カードテーブルout_cardsにそのカードを載せる。
-  */
-  int i,j,k;
-  
-  for(j = 0; j < 4; j++){
-    for (i = 0; i < 15; i++){
-      if((my_cards[j][i] == 1) && (sequence[j][i] == 0)){
-	out_cards[j][i] = 1;           //mycardsに存在し,かつ役テーブルにない場合1
-      }else if(sequence[j][i] > 2){
-      	for(k=0;k < sequence[j][i];k++){
-      	  out_cards[j][i+k] = 0;
-      	}
-      	i += k-1;
-      } 
-      else {
-	out_cards[j][i] = 0;      //それ以外(mycardsにないか,役テーブルにある)の場合0
-      }
-    }
-  }
-}
-
-
 void lowSolo(int out_cards[8][15],int my_cards[8][15],int joker_flag){
   /*
     低い方から探して,最初に見つけたカードを一枚out_cardsにのせる。
@@ -681,27 +304,6 @@ void lowSolo(int out_cards[8][15],int my_cards[8][15],int joker_flag){
   }
   if(find_flag==0&&joker_flag==1){       //見つからなかったとき
     out_cards[0][14]=2;                  //ジョーカーをのせる
-  }
-}
-
-void highSolo(int out_cards[8][15],int my_cards[8][15],int joker_flag){
-  /*
-    高い方から探して,最初に見つけたカードを一枚out_cardsにのせる。
-    joker_flagがあるとき,カードが見つからなければ,jokerを一枚out_cardsにのせる。
-  */
-  int i,j,find_flag=0;
-  
-  clearTable(out_cards);                 //テーブルをクリア
-  for(j=13;j>0&&find_flag==0;j--){       //高い方からさがし
-    for(i=0;i<4&&find_flag==0;i++){
-      if(my_cards[i][j]==1){              //カードを見つけたら
-	find_flag=1;                      //フラグを立て
-	out_cards[i][j]=my_cards[i][j];   //out_cardsにのせ,ループを抜ける。
-      }
-    }
-  }
-  if(find_flag==0&&joker_flag==1){       //見つからなかったとき
-    out_cards[0][0]=2;                   //ジョーカーをのせる
   }
 }
 
@@ -727,256 +329,47 @@ void change(int out_cards[8][15],int my_cards[8][15],int num_of_change){
 void lead(int out_cards[8][15],int my_cards[8][15]){
   /*
     新しくカードを提出するときの選択ルーチン
-    カードテーブルmy_cardsから階段=>ペア=>一枚の順で枚数の多いほうから走査し,
-    低いカードからみて、はじめて見つけたものを out_cardsにのせる。
   */
-  int group[8][15];           //枚数組を調べるためのテーブル
-  int sequence[8][15];        //階段を調べるためのテーブル
-  int temp[8][15];            //一時使用用のテーブル
-  int i,find_flag=0;          //手札が発見したか否かのフラグ
-
-  clearTable(group);
-  clearTable(sequence);
-  clearTable(temp);
-  if(state.joker==1){                      //ジョーカーがあるとき,ジョーカーを考慮し,
-    makeJGroupTable(group,my_cards);       //階段と枚数組があるかを調べ,
-    makeJKaidanTable(sequence,my_cards);   //テーブルに格納する
-  }else{
-    makeGroupTable(group,my_cards);        //ジョーカーがないときの階段と枚数組の
-    makeKaidanTable(sequence,my_cards);    //状況をテーブルに格納する
-  }
-
-  for(i=15;i>=3&&find_flag==0;i--){         //枚数の大きい方から,見つかるまで
-    find_flag=nCards(temp,sequence,i);      //階段があるかをしらべ,
-    
-    if(find_flag==1){                       //見つかったとき
-      lowSequence(out_cards,my_cards,temp); //そのなかで最も低いものをout_cards
-    }                                       //にのせる         
-  }
-  for(i=5;i>=2&&find_flag==0;i--){          //枚数の大きい方から,見つかるまで
-    find_flag=nCards(temp,group,i);         //枚数組があるかを調べ,
-    if(find_flag==1){                       //見つかったとき
-      lowGroup(out_cards,my_cards,temp);    //そのなかで最も低いものをout_cards
-    }                                       //のせる
-  }
-  if(find_flag==0){                          //まだ見つからないとき
-    lowSolo(out_cards,my_cards,state.joker); //最も低いカードをout_cardsにのせる。
-  }
-}
-
-void leadRev(int out_cards[8][15],int my_cards[8][15]){
-  /*
-    革命時用の新しくカードを提出するときの選択ルーチン
-    カードテーブルmy_cardsから階段=>ペア=>一枚の順で枚数の多いほうから走査し,
-    高いカードからみて、はじめて見つけたものを out_cardsにのせる。
-  */
-  int group[8][15];           //枚数組を調べるためのテーブル
-  int sequence[8][15];        //階段を調べるためのテーブル
-  int temp[8][15];            //一時使用用のテーブル
-  int i,find_flag=0;          //手札が発見したか否かのフラグ
-  //clearTable(group);
-  //clearTable(sequence);
-  //clearTable(temp);
-  if(state.joker==1){                        //ジョーカーがあるとき,ジョーカーを考慮し,
-    makeJGroupTable(group,my_cards);         //階段と枚数組があるかを調べ,
-    makeJKaidanTable(sequence,my_cards);     //テーブルに格納する
-  }else{
-    makeGroupTable(group,my_cards);          //ジョーカーがないときの階段と枚数組の
-    makeKaidanTable(sequence,my_cards);      //状況をテーブルに格納する
-  }		
-  for(i=15;i>=3&&find_flag==0;i--){          //枚数の大きい方から,見つかるまで
-    
-    find_flag=nCards(temp,sequence,i);       //階段があるかをしらべ,
-    
-    if(find_flag==1){                        //見つかったとき
-      highSequence(out_cards,my_cards,temp); //そのなかで最も高いものをout_cards
-    }                                        //にのせる
-  }
-  for(i=5;i>=2&&find_flag==0;i--){           //枚数の大きい方から,見つかるまで
-    find_flag=nCards(temp,group,i);          //枚数組があるかを調べ,
-    if(find_flag==1){                        //見つかったとき
-      highGroup(out_cards,my_cards,temp);    //そのなかで最も高いものをout_cards
-    }                                        //にのせる       
-  }
-  if(find_flag==0){                          //まだ見つからないとき
-    highSolo(out_cards,my_cards,state.joker);//最も高いカードをout_cardsにのせる
-  }
-}
- 
-void followSolo(int out_cards[8][15],int my_cards[8][15],int joker_flag){
-  /*
-    他のプレーヤーに続いてカードを一枚で出すときのルーチン
-    joker_flagが1の時ジョーカーを使おうとする
-    提出するカードはカードテーブルout_cardsに格納される
-  */
-  int group[8][15];       //枚数組を調べるためのテーブル
-  int sequence[8][15];    //階段を調べるためのテーブル
-  int temp[8][15];        //一時使用用のテーブル
+  generateHands(cards2Bitboard(my_cards), &stack);
   
-  makeGroupTable(group,my_cards);           //枚数組を書き出す
-  makeKaidanTable(sequence,my_cards);       //階段を書き出す
+  /* 最も評価値の高い手を選択 */
+  boardInfo tmpBoard;
+  boardInfo bestBoard;
+  int bestEval = 0;
+  while (stack.top > 0) {
+    tmpBoard = popBoardStack(&stack);
+    int eval = evaluateHand(tmpBoard, &state);
+    if (eval > bestEval) {
+      bestEval = eval;
+      bestBoard = tmpBoard;
+    }
+  }
   
-  removeSequence(temp,my_cards,sequence);   // 階段を除去
-  removeGroup(out_cards,temp,group);        // 枚数組を除去
-  
-  highCards(temp,out_cards,state.ord);      // 場のカードより弱いカードを除去
-
-  if(state.lock==1){               
-    lockCards(temp,state.suit);             //ロックされているとき出せないカードを除去
-  }
-  lowSolo(out_cards,temp,state.joker);      //残ったカードから弱いカードを抜き出す
-}
-
-void followGroup(int out_cards[8][15],int my_cards[8][15],int joker_flag){
-  /*  
-    他のプレーヤーに続いてカードを枚数組で出すときのルーチン
-    joker_flagが1の時ジョーカーを使おうとする
-    提出するカードはカードテーブルout_cardsに格納される
-  */
-  int group[8][15];
-  int ngroup[8][15];
-  int temp[8][15];
-  
-  highCards(temp,my_cards,state.ord);          //場より強いカードを残す 
-  if(state.lock==1){                           //ロックされているとき
-    lockCards(temp,state.suit);                //出せないカードを除去
-  }
-  makeGroupTable(group,temp);                  //残ったものから枚数組を書き出す
-  if(nCards(ngroup,group,state.qty)==0&&state.joker==1){
-    //場と同じ枚数の組が無いときジョーカーを使って探す
-    makeJGroupTable(group,temp);               
-    nCards(ngroup,group,state.qty);     //場と同じ枚数の組のみのこす。 
-  }
-  lowGroup(out_cards,my_cards,ngroup);  //一番弱い組を抜き出す
-}
-
-void followSequence(int out_cards[8][15],int my_cards[8][15],int joker_flag){
-  /*
-    他のプレーヤーに続いてカードを階段で出すときのルーチン
-    joker_flagが1の時ジョーカーを使おうとする
-    提出するカードはカードテーブルout_cardsに格納される
-  */
-  int seq[8][15];
-  int nseq[8][15];
-  int temp[8][15];
-  
-  highCards(temp,my_cards,state.ord);          //場より強いカードを残す
-  if(state.lock==1){                           //ロックされているとき
-    lockCards(temp,state.suit);                //出せないカードを除去
-  }
-  makeKaidanTable(seq,temp);                   //階段を書き出す
-  if(nCards(nseq,seq,state.qty)==0&&state.joker==1){
-    //場と同じ枚数の階段が無いときジョーカーを使って探す
-    makeJKaidanTable(seq,temp);
-    nCards(nseq,seq,state.qty);          //場と同じ枚数の組のみのこす。
-  }
-  lowSequence(out_cards,my_cards,nseq);  //一番弱い階段を
-}
-
-void followSoloRev(int out_cards[8][15],int my_cards[8][15],int joker_flag){
-  /*
-    革命状態のときに他のプレーヤーに続いてカードを一枚で出すときのルーチン
-    joker_flagが1の時ジョーカーを使おうとする
-    提出するカードはカードテーブルout_cardsに格納される
-  */
-  int group[8][15];
-  int sequence[8][15];
-  int temp[8][15];
-  
-  makeGroupTable(group,my_cards);            //枚数組を書き出す
-  makeKaidanTable(sequence,my_cards);        //階段を書き出す
-  
-  removeSequence(temp,my_cards,sequence);    // 階段を除去
-  removeGroup(out_cards,temp,group);         // 枚数組を除去
-  lowCards(temp,out_cards,state.ord);        // 場のカードより強いカードを除去
-  if(state.lock==1){
-    lockCards(temp,state.suit);          //ロックされているとき出せないカードを除去
-  }
-  highSolo(out_cards,temp,state.joker);  //残ったカードから強いカードを抜き出す
-}
-
-void followGroupRev(int out_cards[8][15],int my_cards[8][15],int joker_flag){
-  /*
-    革命状態のときに他のプレーヤーに続いてカードを枚数組で出すときのルーチン
-    joker_flagが1の時ジョーカーを使おうとする
-    提出するカードはカードテーブルout_cardsに格納される
-  */
-  int group[8][15];
-  int ngroup[8][15];
-  int temp[8][15];
-  
-  lowCards(temp,my_cards,state.ord);          //場より弱いカードを残す
-  if(state.lock==1){                          //ロックされているとき
-    lockCards(temp,state.suit);               //出せないカードを除去
-  }
-  makeGroupTable(group,temp);                 //枚数組を書き出す
-  if(nCards(ngroup,group,state.qty)==0&&state.joker==1){
-    //場と同じ枚数の組が無いときジョーカーを使って探す
-    makeJGroupTable(group,temp);
-    nCards(ngroup,group,state.qty);      //場と同じ枚数の組のみのこす。
-  }
-  highGroup(out_cards,my_cards,ngroup);  //残ったものから一番強い組を抜き出す
-}
-
-void followSequenceRev(int out_cards[8][15],int my_cards[8][15],int joker_flag){
-  /*
-    革命状態のときに他のプレーヤーに続いてカードを階段で出すときのルーチン
-    joker_flagが1の時ジョーカーを使おうとする
-    提出するカードはカードテーブルout_cardsに格納される
-  */
-  int seq[8][15];
-  int nseq[8][15];
-  int temp[8][15];
-  
-  lowCards(temp,my_cards,state.ord);          //場より弱いカードを残す
-  if(state.lock==1){                          //ロックされているとき
-    lockCards(temp,state.suit);               //出せないカードを除去
-  }
-  makeKaidanTable(seq,temp);                  //階段を書き出す
-  if(nCards(nseq,seq,state.qty)==0&&state.joker==1){
-    //場と同じ枚数の階段が無いときジョーカーを使って探す
-    makeJKaidanTable(seq,temp);
-    nCards(nseq,seq,state.qty);          //場と同じ枚数の階段のみのこす。
-  } 
-  highSequence(out_cards,my_cards,nseq); //残ったものから一番強い組を抜き出す
+  clearTable(out_cards);
+  putBoardInfoIntoCards(bestBoard, out_cards);
 }
 
 void follow(int out_cards[8][15],int my_cards[8][15]){
   /*
     他のプレーヤーに続いてカードを出すときのルーチン
-    場の状態stateに応じて一枚、枚数組、階段の場合に分けて
-    対応すれる関数を呼び出す
-    提出するカードはカードテーブルout_cardsに格納される
   */
-  clearTable(out_cards);
-  if(state.qty==1){
-    followSolo(out_cards,my_cards,state.joker);    //一枚のとき
-  }else{
-    if(state.sequence==0){
-      followGroup(out_cards,my_cards,state.joker);  //枚数組のとき
-    }else{
-      followSequence(out_cards,my_cards,state.joker); //階段のとき
+  generateHands(cards2Bitboard(my_cards), &stack);
+  
+  /* 最も評価値の高い手を選択 */
+  boardInfo tmpBoard;
+  boardInfo bestBoard;
+  int bestEval = 0;
+  while (stack.top > 0) {
+    tmpBoard = popBoardStack(&stack);
+    int eval = evaluateHand(tmpBoard, &state);
+    if (eval > bestEval) {
+      bestEval = eval;
+      bestBoard = tmpBoard;
     }
   }
-}
-
-void followRev(int out_cards[8][15],int my_cards[8][15]){
-  /*
-    他のプレーヤーに続いてカードを出すときのルーチン
-    場の状態stateに応じて一枚、枚数組、階段の場合に分けて
-    対応すれる関数を呼び出す
-    提出するカードはカードテーブルout_cardsに格納される
-  */
+  
   clearTable(out_cards);
-  if(state.qty==1){
-    followSoloRev(out_cards,my_cards,state.joker);    //一枚のとき
-  }else{
-    if(state.sequence==0){
-      followGroupRev(out_cards,my_cards,state.joker);  //枚数組のとき
-    }else{
-      followSequenceRev(out_cards,my_cards,state.joker); //階段のとき
-    }
-  }
+  putBoardInfoIntoCards(bestBoard, out_cards);
 }
 
 int cmpCards(int cards1[8][15],int  cards2[8][15]){

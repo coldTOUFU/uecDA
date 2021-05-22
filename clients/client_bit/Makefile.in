@@ -1,6 +1,6 @@
 TARGET	= client
-SRCS	= client.c connection.c daihinmin.c 
-OBJS	= client.o connection.o daihinmin.o 
+SRCS	= client.c connection.c daihinmin.c search_cards.c evaluate_cards.c
+OBJS	= client.o connection.o daihinmin.o search_cards.o evaluate_cards.o
 
 CC = @CC@
 LIBS = @LIBS@  
