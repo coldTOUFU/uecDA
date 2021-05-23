@@ -282,6 +282,115 @@ void generateHands(uint64_t cards, boardStack *board){
   }
 }
 
+char *num2suit(int suit) {
+  if (suit == 0) {
+    char *str = "スペード";
+    return str;
+  }
+  if (suit == 1) {
+    char *str = "ハート";
+    return str;
+  }
+  if (suit == 2) {
+    char *str = "ダイヤ";
+    return str;
+  }
+  if (suit == 3) {
+    char *str = "クローバー";
+    return str;
+  }
+  char str[32];
+  sprintf(str, "該当しないスート値%d", suit);
+  return str;
+}
+
+char *num2cardNum(int num) {
+  if (num > 0 && num < 9) {
+    char str[2];
+    sprintf(str, "%d", num);
+    return str;
+  }
+  if (num == 9) {
+    return "J";
+  }
+  if (num == 10) {
+    return "Q";
+  }
+  if (num == 11) {
+    return "K";
+  }
+  if (num == 12) {
+    return "A";
+  }
+  if (num == 13) {
+    return "2";
+  }
+  char str[24];
+  sprintf(str, "該当しない数字%d", num);
+  return str;
+}
+
+void prettyPrintBitBoard(uint64_t source) {
+  printf("======カードの出力=====\n");
+  for (int i=3; i>=0; i--) {
+    for (int j=13; j>=1; j--) {
+      if (source % 2) {
+        printf("スート: %s, \n", num2suit);
+        printf("数字: %s, \n\n", num2cardNum);
+      }
+      source >> 1;
+    }
+  }
+  printf("====================\n");
+}
+
+void printInfoBoard(boardInfo source) {
+  if (source.cardType == SINGLE_HAND) {
+    printf("cardType: SINGLE\n");
+  }
+  else if (source.cardType == PAIR_HAND) {
+    printf("cardType: PAIR\n");
+  }
+  else if (source.cardType == SEQUENCE_HAND) {
+    printf("cardType: SEQUENCE\n");
+  }
+  else {
+    printf("cardType: %d\n", source.cardType);
+  }
+
+  printf("numOfCards: %d\n", source.numOfCards);
+
+  printf("suit: ");
+  if (source.suit % 2) {
+    printf("クローバー, ");
+  }
+  source.suit >>= 1;
+  if (source.suit % 2) {
+    printf("ダイヤ, ");
+  }
+  source.suit >>= 1;
+  if (source.suit % 2) {
+    printf("ハート, ");
+  }
+  source.suit >>= 1;
+  if (source.suit % 2) {
+    printf("スペード");
+  }
+  printf("\n");
+
+  printf("cards: \n");
+  prettyPrintBitBoard(source.cards);
+
+  printf("joker: \n");
+  prettyPrintBitBoard(source.joker);
+
+  printf("SCard: \n");
+  prettyPrintBitBoard(source.SCard);
+
+  printf("WCard: \n");
+  prettyPrintBitBoard(source.WCard);
+}
+
 void pushBoardStack(boardStack *boards, boardInfo source){
   boards->top++;
   memset(&(boards->board[boards->top]),0,sizeof(boardInfo));

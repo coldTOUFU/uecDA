@@ -1,4 +1,5 @@
 #include<stdint.h>
+
 #define SINGLE_HAND 0
 #define PAIR_HAND 1
 #define SEQUENCE_HAND 2
@@ -29,6 +30,7 @@ void putBoardInfoIntoCards(boardInfo source, int cards[8][15]);
 
 int isContainingOnBit(uint64_t a, uint64_t b);
 void printBitboard(uint64_t source);
+void printInfoBoard(boardInfo source);
 int countBit(uint64_t source);
 
 void searchSequence(uint64_t source, int number, boardStack *board);
