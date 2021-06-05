@@ -1,4 +1,5 @@
 #include<stdint.h>
+#include<stdio.h>
 
 #define SINGLE_HAND 0
 #define PAIR_HAND 1

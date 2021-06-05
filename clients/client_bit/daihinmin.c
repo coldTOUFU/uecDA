@@ -336,14 +336,18 @@ void lead(int out_cards[8][15],int my_cards[8][15]){
   boardInfo tmpBoard;
   boardInfo bestBoard;
   int bestEval = 0;
-  while (stack.top > 0) {
+  printf("#####見つかったカード#####\n");
+  while (stack.top >= 0) {
     tmpBoard = popBoardStack(&stack);
+    printInfoBoard(tmpBoard);
     int eval = evaluateHand(tmpBoard, &state);
+    printf("eval: %d\n\n", eval);
     if (eval > bestEval) {
       bestEval = eval;
       bestBoard = tmpBoard;
     }
   }
+  printf("#########################\n");
   
   clearTable(out_cards);
   putBoardInfoIntoCards(bestBoard, out_cards);
@@ -353,23 +357,7 @@ void follow(int out_cards[8][15],int my_cards[8][15]){
   /*
     他のプレーヤーに続いてカードを出すときのルーチン
   */
-  generateHands(cards2Bitboard(my_cards), &stack);
-  
-  /* 最も評価値の高い手を選択 */
-  boardInfo tmpBoard;
-  boardInfo bestBoard;
-  int bestEval = 0;
-  while (stack.top > 0) {
-    tmpBoard = popBoardStack(&stack);
-    int eval = evaluateHand(tmpBoard, &state);
-    if (eval > bestEval) {
-      bestEval = eval;
-      bestBoard = tmpBoard;
-    }
-  }
-  
-  clearTable(out_cards);
-  putBoardInfoIntoCards(bestBoard, out_cards);
+  lead(out_cards, my_cards);
 }
 
 int cmpCards(int cards1[8][15],int  cards2[8][15]){

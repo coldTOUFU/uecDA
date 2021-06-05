@@ -47,14 +47,15 @@ boardInfo bitboard2BoardInfo(uint64_t source, uint64_t joker) {
   bInfo.SCard = (cards | (cards >> 15) | (cards >> 30) | (cards >> 45)) & 0b111111111111111;
 
   /* 一番弱いカードの強さが15bitで格納される． */
-  cards = source & 0xfffffffffffffff | joker; // sourceの61bit上のjokerをカットし，配置済みjokerを追加．
-  cards |= cards >> 1;
-  cards |= cards >> 2;
-  cards |= cards >> 4;
-  cards |= cards >> 8;
-  cards |= cards >> 16;
-  cards |= cards >> 64;
-  cards ^= cards >> 1;
+  cards = (source & 0xfffffffffffffff) | joker; // sourceの61bit上のjokerをカットし，配置済みjokerを追加．
+  cards |= (cards >> 1);
+  cards |= (cards >> 2);
+  cards |= (cards >> 4);
+  cards |= (cards >> 8);
+  cards |= (cards >> 16);
+  cards |= (cards >> 32);
+  cards |= (cards >> 64);
+  cards ^= (cards >> 1);
   bInfo.WCard = (cards | (cards >> 15) | (cards >> 30) | (cards >> 45)) & 0b111111111111111;
 
   /* スートを抽出．まずSCardの分右シフトをしたうえで1bit，16bit，31bit，46bit目にのみ1が立つよう論理積を取る．
@@ -64,11 +65,11 @@ boardInfo bitboard2BoardInfo(uint64_t source, uint64_t joker) {
   cards = (cards | (cards >> 14) | (cards >> 28) | (cards >> 42)) & 0b111111111111111;
   bInfo.suit = cards;
 
-  if (bInfo.WCard == bInfo.SCard && countBit(bInfo.suit) == 1) {
+  if (bInfo.numOfCards == 1) {
     bInfo.cardType = SINGLE_HAND;
   }
   else {
-    bInfo.cardType = (bInfo.WCard == bInfo.SCard ? PAIR_HAND : SEQUENCE_HAND);
+    bInfo.cardType = (countBit(bInfo.suit) == 1 ? SEQUENCE_HAND : PAIR_HAND);
   }
 
   return bInfo;
@@ -272,6 +273,7 @@ void generateHands(uint64_t cards, boardStack *board){
     searchPair(cards, number, board);
   }
 
+  /* Jokerがある場合． */
   if((cards>>60)%2){
     for(number=3; number< 10; number++){
       searchSequenceWJoker(cards, number, board);
@@ -282,69 +284,75 @@ void generateHands(uint64_t cards, boardStack *board){
   }
 }
 
-char *num2suit(int suit) {
+void printSuit(int suit) {
   if (suit == 0) {
-    char *str = "スペード";
-    return str;
+    printf("スペード");
+    return;
   }
   if (suit == 1) {
-    char *str = "ハート";
-    return str;
+    printf("ハート");
+    return;
   }
   if (suit == 2) {
-    char *str = "ダイヤ";
-    return str;
+    printf("ダイヤ");
+    return;
   }
   if (suit == 3) {
-    char *str = "クローバー";
-    return str;
+    printf("クローバー");
+    return;
   }
-  char str[32];
-  sprintf(str, "該当しないスート値%d", suit);
-  return str;
+  printf("該当しないスート値%d", suit);
 }
 
-char *num2cardNum(int num) {
+void printNum(int num) {
   if (num > 0 && num < 9) {
-    char str[2];
-    sprintf(str, "%d", num);
-    return str;
+    printf("%d", num+2);
+    return;
   }
   if (num == 9) {
-    return "J";
+    printf("J");
+    return;
   }
   if (num == 10) {
-    return "Q";
+    printf("Q");
+    return;
   }
   if (num == 11) {
-    return "K";
+    printf("K");
+    return;
   }
   if (num == 12) {
-    return "A";
+    printf("A");
+    return;
   }
   if (num == 13) {
-    return "2";
+    printf("2");
+    return;
   }
-  char str[24];
-  sprintf(str, "該当しない数字%d", num);
-  return str;
+  printf("該当しない数字%d", num);
 }
 
 void prettyPrintBitBoard(uint64_t source) {
-  printf("======カードの出力=====\n");
+  printf("------カードの出力------\n");
+  printBitboard(source);
   for (int i=3; i>=0; i--) {
-    for (int j=13; j>=1; j--) {
+    for (int j=14; j>=0; j--) {
       if (source % 2) {
-        printf("スート: %s, \n", num2suit);
-        printf("数字: %s, \n\n", num2cardNum);
+        printf("スート: ");
+        printSuit(i);
+        printf("\n");
+        printf("数字:");
+        printNum(j);
+        printf("\n\n");
       }
-      source >> 1;
+      source >>= 1;
     }
   }
-  printf("====================\n");
+  printf("-----------------------\n");
 }
 
 void printInfoBoard(boardInfo source) {
+  printf("=======================\n");
   if (source.cardType == SINGLE_HAND) {
     printf("cardType: SINGLE\n");
   }
@@ -389,6 +397,7 @@ void printInfoBoard(boardInfo source) {
 
   printf("WCard: \n");
   prettyPrintBitBoard(source.WCard);
+  printf("=======================\n");
 }
 
 void pushBoardStack(boardStack *boards, boardInfo source){
