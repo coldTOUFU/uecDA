@@ -1,5 +1,11 @@
-## ソース
-開発キット: https://flute.u-shizuoka-ken.ac.jp/~s-okubo/man/files/tndhms-dev-201222.tar.bz2 
+## "tndhm\_devkit\_c-20180826"
+公式の開発キット
+
+## "clients"
+自作の各クライアント
+
+### "client\_bit"
+ビットボートと評価値法で実装したdefault
 
 ## メモ
 開発キット構築時に
