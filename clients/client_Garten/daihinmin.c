@@ -245,6 +245,19 @@ void clearCards(int cards[8][15]){
   }
 }
 
+void fillCards(int cards[8][15]){  
+  /*
+    引数で渡されたカードテーブルcardsのカード情報の部分を全て1にする。
+  */
+  int s,t;
+  
+  for(s=0;s<5;s++){
+    for(t=0;t<15;t++){
+      cards[s][t]=1;
+    }   
+  }
+}
+
 void clearTable(int cards[8][15]){ 
   /*
     引数で渡されたカードテーブルcardsを全て0にする。
@@ -324,6 +337,11 @@ void change(int out_cards[8][15],int my_cards[8][15],int num_of_change){
     cardsOr(out_cards,one_card);
     count++;
   }
+}
+
+/* 相手のカード全体(= 未観測)から，観測されたカードを引く． */
+void updateOpponentsCards(int opponents_cards[8][15], int observed_cards[8][15]) {
+  subCards(opponents_cards[8][15], observed_cards[8][15]);
 }
 
 void lead(int out_cards[8][15],int my_cards[8][15]){

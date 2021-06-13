@@ -41,9 +41,12 @@ void outputTable(int table_val[8][15]);
 void copyTable(int dest_table[8][15],int org_table[8][15]);
 void copyCards(int cardsTar[8][15],int cardsOrg[8][15]);
 void clearCards( int cards[8][15]);
+void fillCards(int cards[8][15]);  
 void clearTable( int cards[8][15]);
 int beEmptyCards(int cards[8][15]);
 int qtyOfCards(int cards[8][15]);
+
+void updateOpponentsCards(int opponents_cards[8][15], int observed_cards[8][15]);
 
 void lowSolo(int out_cards[8][15],int my_cards[8][15],int joker_flag);
 

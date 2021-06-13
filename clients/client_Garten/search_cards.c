@@ -83,6 +83,9 @@ void putBoardInfoIntoCards(boardInfo source, int cards[8][15]) {
       if (source.cards % 2) {
         cards[i][j] = 1;
       }
+      else {
+        cards[i][j] = 0;
+      }
       if (source.joker % 2) {
         cards[i][j] = 2;
       }
@@ -90,6 +93,30 @@ void putBoardInfoIntoCards(boardInfo source, int cards[8][15]) {
       source.joker = source.joker >> 1;
     }
   }
+}
+
+void putBitboardIntoCards(uint64_t source, int cards[8][15]) {
+  int i, j;
+
+  for(i=3; i>=0; i--){
+    for(j=14; j>=0; j--){
+      if (source % 2) {
+        cards[i][j] = 1;
+      }
+      else {
+        cards[i][j] = 0;
+      }
+      source = source >> 1;
+    }
+  }
+}
+
+int subCards(int passive[8][15], int active[8][15]) {
+  uint64_t p = cards2Bitboard(passive);
+  uint64_t a = cards2Bitboard(active);
+
+  uint64_t result = (p ^ a) & p;
+  putBitboardIntoCards(result, passive);
 }
 
 /* ビット表現で，aとbの論理積がbと一致するならaはbを含む． */

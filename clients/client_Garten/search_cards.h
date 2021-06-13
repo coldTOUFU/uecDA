@@ -28,6 +28,7 @@ boardInfo popBoardStack(boardStack *boards);
 uint64_t cards2Bitboard(int source[8][15]);
 boardInfo bitboard2BoardInfo(uint64_t source, uint64_t joker);
 void putBoardInfoIntoCards(boardInfo source, int cards[8][15]);
+int subCards(int passive[8][15], int active[8][15]);
 
 int isContainingOnBit(uint64_t a, uint64_t b);
 void printBitboard(uint64_t source);
