@@ -48,7 +48,7 @@ int main(int argc,char* argv[]){
     else{ //テーブルに問題が無ければ実際に交換へ
       if(own_cards[5][1] > 0 && own_cards[5][1]<100) {
 	      int change_qty=own_cards[5][1];          //カードの交換枚数
-      	int select_cards[8][15]={{0}};           //選んだカードを格納
+      	int selected_cards[8][15]={{0}};           //選んだカードを格納
 	
 	      //自分が富豪、大富豪であれば不要なカードを選び出す
 	
@@ -56,14 +56,14 @@ int main(int argc,char* argv[]){
 	      //カード交換のアルゴリズムはここに書く
 	      /////////////////////////////////////////////////////////////
 	
-	      change(select_cards,own_cards,change_qty);
+	      change(selected_cards,own_cards,change_qty);
 	
 	      /////////////////////////////////////////////////////////////
 	      //カード交換のアルゴリズム ここまで
 	      /////////////////////////////////////////////////////////////
 
 	      //選んだカードを送信
-	      sendChangingCards(select_cards);
+	      sendChangingCards(selected_cards);
       }
       else{
 	      //自分が平民以下なら、何かする必要はない	
@@ -71,9 +71,8 @@ int main(int argc,char* argv[]){
     } //カード交換ここまで
 
     while(one_gameend_flag == 0){     //1ゲームが終わるまでの繰り返し
-      int select_cards[8][15]={{0}};      //提出用のテーブル
+      int selected_cards[8][15]={{0}};      //提出用のテーブル
       
-
       /* サーバからカードを受け取りown_cards_bufに入れる */
       int isMyTurn = receiveCards(own_cards_buf);
       copyTable(own_cards,own_cards_buf); //カードテーブルをコピー
@@ -83,20 +82,16 @@ int main(int argc,char* argv[]){
                      //場を状態の読み出し
 	                   //自分のターンであるかを確認する
 	      //自分のターンであればこのブロックが実行される。
-	      clearCards(select_cards);             //選んだカードのクリア
+	      clearCards(selected_cards);             //選んだカードのクリア
 	      /////////////////////////////////////////////////////////////
 	      //アルゴリズムここから
 	      //どのカードを出すかはここにかく
 	      /////////////////////////////////////////////////////////////
-	      if(state.onset==1){                //場にカードが無いとき
-	        lead(select_cards,own_cards);    //通常時の提出用
-	      }else{                               //すでに場にカードがあるとき
-	        follow(select_cards,own_cards);    //通常時の提出用 
-	      }
+        select_cards(selected_cards, own_cards, opponents_cards);
 	      /////////////////////////////////////////////////////////////
 	      //アルゴリズムはここまで
 	      /////////////////////////////////////////////////////////////
-	      accept_flag=sendCards(select_cards);//cardsを提出
+	      accept_flag=sendCards(selected_cards);//cardsを提出
       }
       else{
 	      //自分のターンではない時

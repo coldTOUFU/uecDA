@@ -52,8 +52,7 @@ void lowSolo(int out_cards[8][15],int my_cards[8][15],int joker_flag);
 
 void change(int out_cards[8][15],int my_cards[8][15],int num_of_change);
 
-void lead(int out_cards[8][15],int my_cards[8][15]);
-void follow(int out_cards[8][15],int my_cards[8][15]);
+void select_cards(int out_cards[8][15],int my_cards[8][15], int opponent_cards[8][15]);
 
 int cmpCards(int cards1[8][15],int  cards2[8][15]);
 int cmpState(struct state_type* state1,struct state_type* state2);

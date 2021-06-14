@@ -344,10 +344,7 @@ void updateOpponentsCards(int opponents_cards[8][15], int observed_cards[8][15])
   subCards(opponents_cards[8][15], observed_cards[8][15]);
 }
 
-void lead(int out_cards[8][15],int my_cards[8][15]){
-  /*
-    新しくカードを提出するときの選択ルーチン
-  */
+void select_cards(int out_cards[8][15],int my_cards[8][15], int opponent_cards[8][15]){
   generateHands(cards2Bitboard(my_cards), &stack);
   
   /* 最も評価値の高い手を選択 */
@@ -369,13 +366,6 @@ void lead(int out_cards[8][15],int my_cards[8][15]){
   
   clearTable(out_cards);
   putBoardInfoIntoCards(bestBoard, out_cards);
-}
-
-void follow(int out_cards[8][15],int my_cards[8][15]){
-  /*
-    他のプレーヤーに続いてカードを出すときのルーチン
-  */
-  lead(out_cards, my_cards);
 }
 
 int cmpCards(int cards1[8][15],int  cards2[8][15]){
