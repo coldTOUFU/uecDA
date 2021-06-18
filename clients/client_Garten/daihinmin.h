@@ -1,7 +1,3 @@
-#ifndef SEARCH_CARDS_H
-#define SEARCH_CARDS_H
-#include "search_cards.h"
-#endif
 typedef struct state_type
 {
   int ord;            // 現在場に出ているカードの強さ．
@@ -19,11 +15,6 @@ typedef struct state_type
 
   int joker;          // 自分がJokerを持っているか否か．(1 or 0)
 } state_type;
-
-#ifndef EVALUATE_CARDS_H
-#define EVALUATE_CARDS_H
-#include "evaluate_cards.h"
-#endif
 
 state_type state;
 

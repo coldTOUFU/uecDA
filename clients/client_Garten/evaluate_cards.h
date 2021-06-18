@@ -7,5 +7,11 @@
 #include "daihinmin.h"
 #endif
 
-int evaluateHand(boardInfo own_cards, state_type *state);
+#ifndef SEARCH_CARDS_H
+#define SEARCH_CARDS_H
+#include "search_cards.h"
+#endif
+
+int evaluate_hand(boardInfo own_card, boardStack *opponent_cards, state_type *state, state_type *state_simulated);
+int default_evaluate_hand(boardInfo own_card, state_type *state);
 int isPossibleHand(boardInfo own_cards, state_type *state);

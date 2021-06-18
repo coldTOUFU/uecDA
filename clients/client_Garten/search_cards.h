@@ -5,6 +5,8 @@
 #define PAIR_HAND 1
 #define SEQUENCE_HAND 2
 
+#define BOARDSTACK_SIZE 500
+
 typedef struct tmpboardInfo {
   uint64_t cards;
   uint64_t joker;
@@ -17,7 +19,7 @@ typedef struct tmpboardInfo {
 
 typedef struct tmpboardStack {
   int top;
-  boardInfo board[100];
+  boardInfo board[BOARDSTACK_SIZE];
 } boardStack;
 
 boardStack stack;

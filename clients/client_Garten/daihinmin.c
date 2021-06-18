@@ -1,10 +1,19 @@
-/*daifugo*/ 
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <stdlib.h>
+
+#ifndef SEARCH_CARDS_H
+#define SEARCH_CARDS_H
+#include "search_cards.h"
+#endif
+
+#ifndef EVALUATE_CARDS_H
+#define EVALUATE_CARDS_H
+#include "evaluate_cards.h"
+#endif
 
 #ifndef DAIHINMIN_H
 #define DAIHINMIN_H
@@ -35,7 +44,7 @@ void getState(int cards[8][15]){
     state.lock=0;
     for(i=0;i<5;i++)state.suit[i]=0;
   }
-  
+
   for(i=0;i<5;i++) state.player_qty[i]=cards[6][i];   //手持ちのカード
   for(i=0;i<5;i++) state.player_rank[i]=cards[6][5+i];//各プレーヤのランク
   for(i=0;i<5;i++) state.seat[i]=cards[6][10+i];      //誰がどのシートに座っているか
@@ -44,7 +53,7 @@ void getState(int cards[8][15]){
   if(cards[4][1]==2) state.joker=1;     //Jokerがある時 1
   else               state.joker=0;
 
-  
+
 }
 
 void getField(int cards[8][15]){
@@ -56,7 +65,7 @@ void getField(int cards[8][15]){
   int i,j,count=0;
   int found_joker = 0;
   i=j=0;
-  
+
   //カードのある位置を探す
   while(j<15&&cards[i][j]==0){
     state.suit[i]=0;
@@ -88,7 +97,7 @@ void getField(int cards[8][15]){
 	state.suit[i]=0;
       }
     }
-    
+
     //ジョーカー単騎が場に出ているならば、state.ordを最大の強さを示すものに設定
     //ノーマルカードの場合は、その強さをそのままstate.ordへ格納
     if ((found_joker == 1) && (count == 1)){
@@ -100,7 +109,7 @@ void getField(int cards[8][15]){
     }else{
       state.ord=j;
     }
- 
+
   }else{
     //階段
     while(j+count<15 && cards[i][j+count]>0){
@@ -115,12 +124,105 @@ void getField(int cards[8][15]){
   }
   //枚数を記憶
   state.qty=count;
- 
+
   if(state.qty>0){ //枚数が0より大きいとき 新しい場のフラグを0にする
     state.onset=0;
   }
 }
 
+/* 場にカードがある状態をシミュレーションするために，
+   cardsが場に出た後に生じるであろう架空のstateを生成． */
+state_type simulate_state(int cards[8][15]) {
+  state_type st;
+  st.onset = 0;
+  st.b11 = 0;
+
+  int i,j,count=0;
+  int found_joker = 0;
+  int suit_count = 0;
+  i=j=0;
+
+  //カードのある位置を探す
+  while(j<15&&cards[i][j]==0){
+    st.suit[i]=0;
+    i++;
+    if(i==4){
+      j++;
+      i=0;
+    }
+  }
+
+  //見つけたカードがジョーカーならば、found_joker=1。
+  if (cards[i][j] == 2){
+    found_joker = 1;
+  }
+
+  //階段が否か
+  if(j<14){
+    if(cards[i][j+1]>0) st.sequence=1;
+    else st.sequence=0;
+  }
+  //枚数を数える また強さを調べる
+  if(st.sequence==0){
+    //枚数組
+    for(;i<5;i++){
+      if(cards[i][j]>0){
+        count++;
+        st.suit[i]=1;
+      }
+      else{
+        st.suit[i]=0;
+      }
+    }
+    
+    /* カードが4枚以上ある XOR 既に革命状態 THEN 革命． */
+    st.rev = (count >= 4) ^ state.rev;
+
+    //ジョーカー単騎が場に出ているならば、st.ordを最大の強さを示すものに設定
+    //ノーマルカードの場合は、その強さをそのままst.ordへ格納
+    if ((found_joker == 1) && (count == 1)){
+      if (st.rev == 0){
+        st.ord = 14;
+      }
+      else{
+        st.ord = 0;
+      }
+    }
+    else{
+      st.ord=j;
+    }
+
+  }else{
+    //階段
+    while(j+count<15 && cards[i][j+count]>0){
+      count++;
+    }
+
+    /* カードが5枚以上ある XOR 既に革命状態 THEN 革命． */
+    st.rev = (count >= 5) ^ state.rev;
+
+    if((st.rev==0 && st.b11==0 )||( st.rev==1 && st.b11==1 )){
+      st.ord=j+count-1;
+    }else{
+      st.ord=j;
+    }
+    st.suit[i]=1;
+  }
+
+  //枚数を記憶
+  st.qty=count;
+
+  /* 先に出ているカードとシミュレーション対象のカードの
+     スートが同じならしばりになっている． */
+  int is_locked = 1;
+  for (int suit=0; suit<4; suit++) {
+    if (state.suit[suit] != st.suit[suit]) {
+      is_locked = 0;
+      break;
+    }
+  }
+  st.lock = is_locked;
+}
 
 void showState(struct state_type *state){
   /*引数で渡された状態stateの内容を表示する*/
@@ -128,7 +230,7 @@ void showState(struct state_type *state){
   printf("state rev   : %d\n",state->rev);
   printf("state lock  : %d\n",state->lock);
   printf("state joker : %d\n",state->joker);
-  
+
   printf("state qty   : %d\n",state->qty);
   printf("state ord   : %d\n",state->ord);
   printf("state seq   : %d\n",state->sequence);
@@ -150,7 +252,7 @@ void cardsOr(int cards1[8][15],int cards2[8][15]){
     cards1にcards2にあるカードを加える
   */
   int i,j;
-  
+
   for(i=0;i<15;i++)
     for(j=0;j<5;j++)
       if(cards2[j][i]>0)cards1[j][i]=1; 
@@ -161,7 +263,7 @@ void cardsAnd(int cards1[8][15],int cards2[8][15]){
     cards1のカードのうち、cards2にあるものだけをcards1にのこす。
   */
   int i,j;
-  
+
   for(i=0;i<15;i++)
     for(j=0;j<5;j++)
       if(cards1[j][i]==1&&cards2[j][i]==1) cards1[j][i]=1;
@@ -173,7 +275,7 @@ void cardsDiff(int cards1[8][15],int cards2[8][15]){
     cards1からcards2にあるカードを削除する
   */
   int i,j;
-  
+
   for(i=0;i<15;i++)
     for(j=0;j<5;j++)
       if(cards2[j][i]==1) cards1[j][i]=0;
@@ -183,13 +285,12 @@ void cardsNot(int cards[8][15]){
     カードの有無を反転させる
   */
   int i,j;
-  
+
   for(i=0;i<15;i++)
     for(j=0;j<5;j++)
       if(cards[j][i]==1) cards[j][i]=0;
       else cards[j][i]=1;
 }
-
 
 void outputTable(int table[8][15]){ 
   /*
@@ -237,7 +338,7 @@ void clearCards(int cards[8][15]){
     引数で渡されたカードテーブルcardsのカード情報の部分を全て0にし、カードを一枚も無い状態にする。
   */
   int s,t;
-  
+
   for(s=0;s<5;s++){
     for(t=0;t<15;t++){
       cards[s][t]=0;
@@ -250,7 +351,7 @@ void fillCards(int cards[8][15]){
     引数で渡されたカードテーブルcardsのカード情報の部分を全て1にする。
   */
   int s,t;
-  
+
   for(s=0;s<5;s++){
     for(t=0;t<15;t++){
       cards[s][t]=1;
@@ -263,7 +364,7 @@ void clearTable(int cards[8][15]){
     引数で渡されたカードテーブルcardsを全て0にする。
   */
   int s,t;
-  
+
   for(s=0;s<8;s++){
     for(t=0;t<15;t++){
       cards[s][t]=0;
@@ -277,7 +378,7 @@ int beEmptyCards(int cards[8][15]){
     それ以外のとき0を返す
   */
   int i,j,f=1;
-  
+
   for(i=0;i<5;i++){
     for(j=0;j<15;j++){
       if(cards[i][j]>0)f=0;
@@ -291,11 +392,11 @@ int qtyOfCards(int cards[8][15]){
     引数で渡されたカードテーブルcardsの含むカードの枚数を返す
   */
   int i,j,count=0;
-  
+
   for(i=0;i<5;i++)
     for(j=0;j<15;j++)
       if(cards[i][j]>0)count++;
-  
+
   return count;
 }
 
@@ -329,7 +430,7 @@ void change(int out_cards[8][15],int my_cards[8][15],int num_of_change){
   */
   int count=0;
   int one_card[8][15];
-  
+
   clearTable(out_cards);
   while(count<num_of_change){
     lowSolo(one_card,my_cards,0);
@@ -341,12 +442,12 @@ void change(int out_cards[8][15],int my_cards[8][15],int num_of_change){
 
 /* 相手のカード全体(= 未観測)から，観測されたカードを引く． */
 void updateOpponentsCards(int opponents_cards[8][15], int observed_cards[8][15]) {
-  subCards(opponents_cards[8][15], observed_cards[8][15]);
+  cardsDiff(opponents_cards, observed_cards);
 }
 
 void select_cards(int out_cards[8][15],int my_cards[8][15], int opponent_cards[8][15]){
   generateHands(cards2Bitboard(my_cards), &stack);
-  
+
   /* 最も評価値の高い手を選択 */
   boardInfo tmpBoard;
   boardInfo bestBoard;
@@ -355,7 +456,13 @@ void select_cards(int out_cards[8][15],int my_cards[8][15], int opponent_cards[8
   while (stack.top >= 0) {
     tmpBoard = popBoardStack(&stack);
     printInfoBoard(tmpBoard);
-    int eval = evaluateHand(tmpBoard, &state);
+    int tmp_cards[8][15];
+    clearCards(tmp_cards);
+    boardStack opponent_stack;
+    generateHands(cards2Bitboard(opponent_cards), &opponent_stack);
+    putBoardInfoIntoCards(tmpBoard, tmp_cards);
+    state_type st = simulate_state(tmp_cards);
+    int eval = evaluate_hand(tmpBoard, &opponent_stack, &state, &st);
     printf("eval: %d\n\n", eval);
     if (eval > bestEval) {
       bestEval = eval;
@@ -363,7 +470,7 @@ void select_cards(int out_cards[8][15],int my_cards[8][15], int opponent_cards[8
     }
   }
   printf("#########################\n");
-  
+
   clearTable(out_cards);
   putBoardInfoIntoCards(bestBoard, out_cards);
 }
@@ -374,12 +481,12 @@ int cmpCards(int cards1[8][15],int  cards2[8][15]){
     異なっていれば1、一致していれば0を返す
   */
   int i,j,flag=0;
-  
+
   for(i=0;i<5;i++)
     for(j=0;j<15;j++)
       if(cards1[i][j]!=cards2[i][j])
 	flag=1;
-  
+
   return flag;
 }
 
@@ -407,22 +514,22 @@ int getLastPlayerNum(int ba_cards[8][15]){
   */
   static struct state_type last_state;
   static int last_player_num=-1;
-  
+
   if(g_logging==1){  //ログの表示
     printf("Now state \n");
     showState(&state);
     printf(" Last state \n");
     showState(&last_state);
   }
-  
+
   if(cmpState(&last_state,&state)!=0){ //場の状態に変化が起きたら
     last_player_num =ba_cards[5][3];   //最後のプレーヤと
     last_state=state;                  //最新の状態を更新する
   }
-  
+
   if(g_logging==1){ //ログの表示
     printf("last player num : %d\n",last_player_num);
   }
-  
+
   return last_player_num;
 }
