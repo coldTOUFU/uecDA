@@ -1,3 +1,5 @@
+#include "string.h"
+
 #ifndef SEARCH_CARDS_H
 #define SEARCH_CARDS_H
 #include "search_cards.h"
@@ -39,24 +41,26 @@ boardInfo bitboard2BoardInfo(uint64_t source, uint64_t joker) {
   bInfo.numOfCards = countBit(cards);
 
   /* 一番強いカードの強さが15bitで格納される． */
-  /* 一番右の1だけ立てた上で，
-     各スートを15bitの範囲に右シフトしたものの論理和をとって，
-     15bitの範囲より大きいところに立つ1を0b111111111111111との論理積で落とす． */
+  /* 各スートを15bitの範囲に右シフトしたものの論理和をとって，
+     15bitの範囲より大きいところに立つ1を0b111111111111111との論理積で落とす．
+     最後に一番右の(= 一番強い)カードだけ取り出す． */
   cards = source & 0xfffffffffffffff | joker; // sourceの61bit上のjokerをカットし，配置済みjokerを追加．
-  cards = cards&(-cards);
-  bInfo.SCard = (cards | (cards >> 15) | (cards >> 30) | (cards >> 45)) & 0b111111111111111;
+  cards = (cards | (cards >> 15) | (cards >> 30) | (cards >> 45)) & 0b111111111111111;
+  bInfo.SCard = cards & (-cards);
 
   /* 一番弱いカードの強さが15bitで格納される． */
+  /* 各スートを15bitの範囲に右シフトしたものの論理和をとって，
+     15bitの範囲より大きいところに立つ1を0b111111111111111との論理積で落とす．
+     最後に次の手順で一番左の(= 一番弱い)カードだけ取り出す．
+     すなわち，bitを右シフトしながら和を取っていき，一番左の1以降にすべて1を立てる．
+     最後にそれを1bit右シフトしたもので引けば，一番左のもののみ残る． */
   cards = (source & 0xfffffffffffffff) | joker; // sourceの61bit上のjokerをカットし，配置済みjokerを追加．
+  cards = (cards | (cards >> 15) | (cards >> 30) | (cards >> 45)) & 0b111111111111111;
   cards |= (cards >> 1);
   cards |= (cards >> 2);
   cards |= (cards >> 4);
   cards |= (cards >> 8);
-  cards |= (cards >> 16);
-  cards |= (cards >> 32);
-  cards |= (cards >> 64);
-  cards ^= (cards >> 1);
-  bInfo.WCard = (cards | (cards >> 15) | (cards >> 30) | (cards >> 45)) & 0b111111111111111;
+  bInfo.WCard = cards - (cards>>1);
 
   /* スートを抽出．まずSCardの分右シフトをしたうえで1bit，16bit，31bit，46bit目にのみ1が立つよう論理積を取る．
      その後，それらを下位4bitに写して16bit以降を論理積でカットする． */
