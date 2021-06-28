@@ -2,9 +2,9 @@
 #define INFINITY_EVAL_M 400
 #define INFINITY_EVAL_S 20
 
-#ifndef DAIHINMIN_H
-#define DAIHINMIN_H
-#include "daihinmin.h"
+#ifndef SELECT_CARDS_H
+#define SELECT_CARDS_H
+#include "select_cards.h"
 #endif
 
 #ifndef SEARCH_CARDS_H
@@ -12,6 +12,6 @@
 #include "search_cards.h"
 #endif
 
-int evaluate_hand(boardInfo own_card, boardStack *opponent_cards, state_type *state, state_type *state_simulated);
-int default_evaluate_hand(boardInfo own_card, state_type *state);
-int isPossibleHand(boardInfo own_cards, state_type *state);
+int evaluate_hand(board_info own_card, board_stack *opponent_cards, state_type *state, state_type *state_simulated);
+int default_evaluate_hand(board_info own_card, state_type *state);
+int is_possible_hand(board_info own_cards, state_type *state);

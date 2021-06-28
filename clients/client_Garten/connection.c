@@ -11,9 +11,9 @@
 
 #include "connection.h"
 
-#ifndef DAIHINMIN_H
-#define DAIHINMIN_H
-#include "daihinmin.h"
+#ifndef SELECT_CARDS_H
+#define SELECT_CARDS_H
+#include "select_cards.h"
 #endif
 
 #define PROTOCOL_VERSION	20070		//プロトコルヴァージョンを表す整数
@@ -100,7 +100,7 @@ int startGame(int table[8][15]){
   //ログ取りが有効なら、配布されたカード(というかテーブル)を表示
   if(g_logging ==1){
     printf("initial cards table is follow.\n");
-    outputTable(table);
+    print_cards(table);
   }
 
   game_count++;
@@ -125,7 +125,7 @@ void sendChangingCards(int cards[8][15]){
   if(g_logging == 1){
     //テーブルの内容を出力
     printf("sent card table was......\n");
-    outputTable(cards);
+    print_cards(cards);
   }
 }
 
@@ -142,10 +142,10 @@ int receiveCards(int cards[8][15]){
     if(g_logging == 1){
       printf("recieved my cards table.\n");
       printf("  table count=%d\n",table_count);
-      outputTable(cards);
+      print_cards(cards);
     }
   }
-  getState(cards);   //場の状態の読み出し
+  set_state_from_own_cards(cards);   //場の状態の読み出し
   return cards[5][2];
 }
 
@@ -155,7 +155,7 @@ int sendCards(int cards[8][15]){
   //カードを送信する
   if(g_logging==1){
     printf("send card table was following.\n");
-    outputTable(cards);
+    print_cards(cards);
   }
 
   if((sendTable(cards)) == -1 ){ //カードを送信し 失敗時はメッセージを表示
@@ -200,11 +200,11 @@ void lookField(int cards[8][15]){
     //成功時ログを表示
     if(g_logging == 1){
       printf("received result table.\n");
-      outputTable(cards);
+      print_cards(cards);
       printf("end bacards\n");
     }
   }
-  getField(cards); //場に出ているカードの情報を読み出す
+  set_state_from_table(cards); //場に出ているカードの情報を読み出す
 }
 
 void checkArg(int argc,char* argv[]){
@@ -337,7 +337,7 @@ static int sendProfile(const char user[15]){
   if(g_logging==1){
     printf("sending profile was done successfully.\n");
     printf("sent profile table was......\n");
-    outputTable(profile);
+    print_cards(profile);
   }
   return 0;
 }

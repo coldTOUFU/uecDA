@@ -7,41 +7,38 @@
 
 #define BOARDSTACK_SIZE 500
 
-typedef struct tmpboardInfo {
+typedef struct board_info {
   uint64_t cards;
   uint64_t joker;
   uint64_t WCard;
   uint64_t SCard;
-  int numOfCards;
-  int cardType;
+  int num_of_cards;
+  int card_type;
   uint64_t suit;
-} boardInfo;
+  int eval;
+} board_info;
 
-typedef struct tmpboardStack {
+typedef struct board_stack {
   int top;
-  boardInfo board[BOARDSTACK_SIZE];
-} boardStack;
+  board_info board[BOARDSTACK_SIZE];
+} board_stack;
 
-boardStack stack;
+board_stack stack;
 
-void pushBoardStack(boardStack *boards, boardInfo source);
-boardInfo popBoardStack(boardStack *boards);
+void push_board_stack(board_stack *boards, board_info source);
+board_info pop_board_stack(board_stack *boards);
 
-uint64_t cards2Bitboard(int source[8][15]);
-boardInfo bitboard2BoardInfo(uint64_t source, uint64_t joker);
-void putBoardInfoIntoCards(boardInfo source, int cards[8][15]);
-int subCards(int passive[8][15], int active[8][15]);
+uint64_t cards2bitboard(int source[8][15]);
+board_info bitboard2board_info(uint64_t source, uint64_t joker);
+void put_board_info_into_cards(board_info source, int cards[8][15]);
 
-int isContainingOnBit(uint64_t a, uint64_t b);
-void printBitboard(uint64_t source);
-void printInfoBoard(boardInfo source);
-int countBit(uint64_t source);
+int is_inclusion(uint64_t a, uint64_t b);
+void print_bitboard(uint64_t source);
+void print_board_info(board_info source);
+int count_bit(uint64_t source);
 
-void searchSequence(uint64_t source, int number, boardStack *board);
-void searchSequenceWJoker(uint64_t bCards, int number, boardStack *board);
-void searchPair(uint64_t bCards, int number, boardStack *board);
-void searchPairWJoker(uint64_t bCards, int number, boardStack *board);
-void generateHands(uint64_t cards, boardStack *board);
-
-void alanyzeBoard(boardInfo target ,int source[8][15]);
-
+void search_sequence(uint64_t source, int number, board_stack *board);
+void search_sequence_with_joker(uint64_t bCards, int number, board_stack *board);
+void search_pair(uint64_t bCards, int number, board_stack *board);
+void search_pair_with_joker(uint64_t bCards, int number, board_stack *board);
+void generate_hands(uint64_t cards, board_stack *board);

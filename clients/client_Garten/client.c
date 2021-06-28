@@ -3,9 +3,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#ifndef DAIHINMIN_H
-#define DAIHINMIN_H
-#include "daihinmin.h"
+#ifndef SELECT_CARDS_H
+#define SELECT_CARDS_H
+#include "select_cards.h"
 #endif
 #include "connection.h"
 
@@ -27,7 +27,7 @@ int main(int argc,char* argv[]){
   int opponents_cards[8][15];     // 相手全体のカードテーブル
 
   /* 相手のカードの初期化(全カードが自分の手元も場にもない) */
-  fillCards(opponents_cards);
+  init_opponents_cards(opponents_cards);
   
   //引数のチェック 引数に従ってサーバアドレス、接続ポート、クライアント名を変更
   checkArg(argc,argv);
@@ -39,7 +39,7 @@ int main(int argc,char* argv[]){
     one_gameend_flag=0;                 //1ゲームが終わった事を示すフラグを初期化
     
     game_count=startGame(own_cards_buf);//ラウンドを始める 最初のカードを受け取る。
-    copyTable(own_cards,own_cards_buf); //もらったテーブルを操作するためのテーブルにコピー
+    copy_cards(own_cards,own_cards_buf); //もらったテーブルを操作するためのテーブルにコピー
     ///カード交換
     if(own_cards[5][0]== 0){ //カード交換時フラグをチェック ==1で正常
       printf("not card-change turn?\n");
@@ -56,7 +56,7 @@ int main(int argc,char* argv[]){
 	      //カード交換のアルゴリズムはここに書く
 	      /////////////////////////////////////////////////////////////
 	
-	      change(selected_cards,own_cards,change_qty);
+	      select_change_cards(selected_cards,own_cards,change_qty);
 	
 	      /////////////////////////////////////////////////////////////
 	      //カード交換のアルゴリズム ここまで
@@ -75,14 +75,14 @@ int main(int argc,char* argv[]){
       
       /* サーバからカードを受け取りown_cards_bufに入れる */
       int isMyTurn = receiveCards(own_cards_buf);
-      copyTable(own_cards,own_cards_buf); //カードテーブルをコピー
-      updateOpponentsCards(opponents_cards, own_cards);
+      copy_cards(own_cards,own_cards_buf); //カードテーブルをコピー
+      update_opponents_cards(opponents_cards, own_cards);
 
       if(isMyTurn){  //カードをown_cards_bufに受け取り
                      //場を状態の読み出し
 	                   //自分のターンであるかを確認する
 	      //自分のターンであればこのブロックが実行される。
-	      clearCards(selected_cards);             //選んだカードのクリア
+	      clear_cards(selected_cards);             //選んだカードのクリア
 	      /////////////////////////////////////////////////////////////
 	      //アルゴリズムここから
 	      //どのカードを出すかはここにかく
@@ -102,8 +102,8 @@ int main(int argc,char* argv[]){
       
       //そのターンに提出された結果のテーブル受け取り,場に出たカードの情報を解析する
       lookField(ba_cards_buf);
-      copyTable(ba_cards,ba_cards_buf);
-      updateOpponentsCards(opponents_cards, ba_cards);
+      copy_cards(ba_cards,ba_cards_buf);
+      update_opponents_cards(opponents_cards, ba_cards);
 
       ///////////////////////////////////////////////////////////////
       //カードが出されたあと 誰かがカードを出す前の処理はここに書く

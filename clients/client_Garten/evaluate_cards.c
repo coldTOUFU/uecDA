@@ -13,18 +13,18 @@
 #include "search_cards.h"
 #endif
 
-#ifndef DAIHINMIN_H
-#define DAIHINMIN_H
-#include "daihinmin.h"
+#ifndef SELECT_CARDS_H
+#define SELECT_CARDS_H
+#include "select_cards.h"
 #endif
 
-int evaluate_hand(boardInfo own_card, boardStack *opponent_cards, state_type *state, state_type *state_simulated) {
+int evaluate_hand(board_info own_card, board_stack *opponent_cards, state_type *state, state_type *state_simulated) {
   int abs_eval = default_evaluate_hand(own_card, state);
   int rel_eval = 0;
 
   int opponent_evals[BOARDSTACK_SIZE] = {0};
   while (opponent_cards->top >= 0) {
-    boardInfo opponent_card = popBoardStack(opponent_cards);
+    board_info opponent_card = pop_board_stack(opponent_cards);
     int eval = default_evaluate_hand(opponent_card, state_simulated);
     opponent_evals[opponent_cards->top + 1] = eval; // 後で整列するので場所はどうでもいい．
   }
@@ -37,17 +37,17 @@ int evaluate_hand(boardInfo own_card, boardStack *opponent_cards, state_type *st
   return abs_eval + 0.2*rel_eval; // 上でrel_evalは評価値5つ分なので，1/5倍してみる．
 }
 
-int default_evaluate_hand(boardInfo own_card, state_type *state) {
-  if (!state->onset && !isPossibleHand(own_card, state)) {
+int default_evaluate_hand(board_info own_card, state_type *state) {
+  if (!state->onset && !is_possible_hand(own_card, state)) {
     return -INFINITY_EVAL_L;
   }
 
   int eval = 0;
   if (state->onset) {
-    if (own_card.cardType == SEQUENCE_HAND) {
+    if (own_card.card_type == SEQUENCE_HAND) {
       eval += INFINITY_EVAL_M;
     }
-    eval += own_card.numOfCards * INFINITY_EVAL_S;
+    eval += own_card.num_of_cards * INFINITY_EVAL_S;
   }
 
   if (!state->rev) {
@@ -66,15 +66,15 @@ int default_evaluate_hand(boardInfo own_card, state_type *state) {
   return eval;
 }
 
-int isPossibleHand(boardInfo own_card, state_type *state) {
+int is_possible_hand(board_info own_card, state_type *state) {
   if (state->onset) { return 1; }
 
   /* 場と同じ種類の手である必要がある． */
-  if (state->sequence && own_card.cardType != SEQUENCE_HAND)  { return 0; }
-  if (!state->sequence && own_card.cardType == SEQUENCE_HAND) { return 0; }
+  if (state->sequence && own_card.card_type != SEQUENCE_HAND)  { return 0; }
+  if (!state->sequence && own_card.card_type == SEQUENCE_HAND) { return 0; }
 
   /* 場のカードと同枚数である必要がある． */
-  if (state->qty != own_card.numOfCards) { return 0; }
+  if (state->qty != own_card.num_of_cards) { return 0; }
 
   /* 出すカードの最小が場のカードの最大より強い必要がある． */
   /* state->ordは0..14の整数で，大きいほど強い．0と14はJoker用． */
