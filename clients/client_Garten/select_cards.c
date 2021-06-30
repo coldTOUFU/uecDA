@@ -32,6 +32,23 @@
 #define LOWER 1
 #define HIGHER 0
 
+void init_state(state_type *st) {
+  st->ord = 0;
+  st->sequence = 0;
+  st->qty = 0;
+  st->rev = 0;
+  st->b11 = 0;
+  st->lock = 0;
+  st->onset = 0;
+  st->joker = 0;
+  for (int i=0; i<5; i++) {
+    st->suit[i] = 0;
+    st->player_qty[i] = 0;
+    st->player_rank[i] = 0;
+    st->seat[i] = 0;
+  }
+}
+
 void set_state_from_own_cards(int cards[8][15]) {
   state.joker = (cards[4][1] == 2);
   state.onset = (cards[5][4] == 1);
@@ -390,28 +407,48 @@ void select_cards(int out_cards[8][15], int my_cards[8][15], int opponent_cards[
   generate_hands(cards2bitboard(my_cards), &stack);
 
   /* 最も評価値の高い手を選択 */
-  board_info tmp_board;
-  board_info bestBoard;
-  int bestEval = 0;
-  printf("#####見つかったカード#####\n");
+  board_info choosing_my_board;
+  board_info best_board;
+  int best_eval = 0;
   while (stack.top >= 0) {
-    tmp_board = pop_board_stack(&stack);
-    print_board_info(tmp_board);
-    int tmp_cards[8][15];
-    clear_cards(tmp_cards);
+    /* スタックから一番上の着手を取る． */
+    /* 取ったものをカード配列にして，この手を出した後のstateを生成する． */
+    choosing_my_board = pop_board_stack(&stack);
+    int choosing_my_hand[8][15];
+    clear_cards(choosing_my_hand);
+    put_board_info_into_cards(choosing_my_board, choosing_my_hand);
+    state_type state_simulated = simulate_state(choosing_my_hand);
+
+    /* 相手の手札全体から手を生成する． */
     board_stack opponent_stack;
     generate_hands(cards2bitboard(opponent_cards), &opponent_stack);
-    put_board_info_into_cards(tmp_board, tmp_cards);
-    state_type st = simulate_state(tmp_cards);
-    int eval = evaluate_hand(tmp_board, &opponent_stack, &state, &st);
-    printf("eval: %d\n\n", eval);
-    if (eval > bestEval) {
-      bestEval = eval;
-      bestBoard = tmp_board;
+
+    /* 出す手に対する評価値を計算． */
+    int eval = evaluate_hand(choosing_my_board, &opponent_stack, &state, &state_simulated);
+
+    /* 残る手に対する評価値を求める． */
+    /* そのために，「空のstate」を作成する．空なので，onsetだけ1にする． */
+    state_type dummy_st;
+    init_state(&dummy_st); dummy_st.onset = 1;
+
+    /* 選んでいる着手を自分の手札から引いた残りから作れる着手を考える． */
+    int my_cards_left[8][15];
+    copy_cards(my_cards_left, my_cards);
+    cards_DIFF(my_cards_left, choosing_my_hand);
+    board_stack my_cards_left_stack;
+    generate_hands(cards2bitboard(my_cards_left), &my_cards_left_stack);
+    /* 上でopponent_stackは空になっているので，もう一度作る． */
+    generate_hands(cards2bitboard(opponent_cards), &opponent_stack);
+
+    /* 残る手に対する評価値を計算． */
+    int left_eval = evaluate_hand_left(&my_cards_left_stack, &opponent_stack, &dummy_st, &dummy_st);
+
+    if (eval+left_eval > best_eval) {
+      best_eval = eval+left_eval;
+      best_board = choosing_my_board;
     }
   }
-  printf("#########################\n");
 
   clear_cards(out_cards);
-  put_board_info_into_cards(bestBoard, out_cards);
+  put_board_info_into_cards(best_board, out_cards);
 }

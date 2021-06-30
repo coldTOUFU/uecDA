@@ -26,6 +26,7 @@ uint64_t cards2bitboard(int source[8][15]){
     }
   }
 
+  /* 上のforで余計に1回左シフトした文を戻す． */
   return bitboard >> 1;
 }
 
@@ -99,7 +100,7 @@ void put_board_info_into_cards(board_info source, int cards[8][15]) {
   }
 }
 
-void putBitboardIntoCards(uint64_t source, int cards[8][15]) {
+void put_bitboard_into_cards(uint64_t source, int cards[8][15]) {
   int i, j;
 
   for(i=3; i>=0; i--){
@@ -112,6 +113,10 @@ void putBitboardIntoCards(uint64_t source, int cards[8][15]) {
       }
       source = source >> 1;
     }
+  }
+
+  if (source % 2) {
+    cards[4][1] = 2;
   }
 }
 

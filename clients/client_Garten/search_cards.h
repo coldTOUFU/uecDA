@@ -31,6 +31,7 @@ board_info pop_board_stack(board_stack *boards);
 uint64_t cards2bitboard(int source[8][15]);
 board_info bitboard2board_info(uint64_t source, uint64_t joker);
 void put_board_info_into_cards(board_info source, int cards[8][15]);
+void put_bitboard_into_cards(uint64_t source, int cards[8][15]);
 
 int is_inclusion(uint64_t a, uint64_t b);
 void print_bitboard(uint64_t source);
