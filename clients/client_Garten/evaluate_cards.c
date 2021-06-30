@@ -33,12 +33,12 @@ int evaluate_hand(board_info my_hand, board_stack *opponent_hands, state_type *s
     opponent_evals[opponent_hands->top + 1] = eval; // 後で整列するので場所はどうでもいい．
   }
   quicksort(opponent_evals, 0, BOARDSTACK_SIZE-1);
-  for (int i=1; i<=5; i++) { // 上から5つ分．5はテキトーな数字．
+  for (int i=1; i<=PICKING_SIZE; i++) {
     int tmp = opponent_evals[BOARDSTACK_SIZE-i];
     rel_eval += (tmp > 0 ? tmp : 0);
   }
   
-  return abs_eval + 0.2*rel_eval; // 上でrel_evalは評価値5つ分なので，1/5倍してみる．
+  return abs_eval + ((1.0/(float)PICKING_SIZE)*(float)rel_eval);
 }
 
 int evaluate_hand_left(board_stack *my_hands_left, board_stack *opponent_hands, state_type *state, state_type *state_simulated) {
@@ -57,7 +57,7 @@ int evaluate_hand_left(board_stack *my_hands_left, board_stack *opponent_hands, 
     left_eval += (tmp > 0 ? tmp : 0);
   }
   
-  return left_eval * 0.2; // 上でleft_evalは評価値5つ分なので，1/5倍してみる．
+  return (1.0/(float)PICKING_SIZE)*(float)left_eval;
 }
 
 int default_evaluate_hand(board_info hands, state_type *state) {

@@ -2,6 +2,8 @@
 #define INFINITY_EVAL_M 400
 #define INFINITY_EVAL_S 20
 
+#define PICKING_SIZE 7 // 着手集合から評価値をいくつか拾うとき，いくつ拾うか．
+
 #ifndef SELECT_CARDS_H
 #define SELECT_CARDS_H
 #include "select_cards.h"
