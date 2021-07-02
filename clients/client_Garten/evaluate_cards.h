@@ -17,4 +17,5 @@
 int evaluate_hand(board_info my_hands, board_stack *opponent_hands, state_type *state, state_type *state_simulated);
 int evaluate_hand_left(board_stack *my_hands_left, board_stack *opponent_hands, state_type *state, state_type *state_simulated);
 int default_evaluate_hand(board_info hands, state_type *state);
+int evaluate_exceptional_hand(board_info hand);
 int is_possible_hand(board_info hands, state_type *state);

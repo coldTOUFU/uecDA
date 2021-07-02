@@ -22,6 +22,10 @@ int evaluate_hand(board_info my_hand, board_stack *opponent_hands, state_type *s
   int abs_eval = default_evaluate_hand(my_hand, state);
   int rel_eval = 0;
 
+  /* 8とjokerの場合は温存する．出さないわけではないが優先度最低． */
+  /* できれば後に改良する */
+  //if (evaluate_exceptional_hand(my_hand)) { return 1; }
+
   /* 相手の手を評価値として考えるときは，相手により強い手を強いるような着手を評価するために，
      revを反転させて強い手ほど大きい評価値になるようにする(自分の手を評価するときは，強い手を温存するために逆になる)． */
   state_simulated->rev != state_simulated->rev;
@@ -60,17 +64,17 @@ int evaluate_hand_left(board_stack *my_hands_left, board_stack *opponent_hands, 
   return (1.0/(float)PICKING_SIZE)*(float)left_eval;
 }
 
-int default_evaluate_hand(board_info hands, state_type *state) {
-  if (!state->onset && !is_possible_hand(hands, state)) {
+int default_evaluate_hand(board_info hand, state_type *state) {
+  if (!state->onset && !is_possible_hand(hand, state)) {
     return -INFINITY_EVAL_L;
   }
 
   int eval = 0;
   if (state->onset) {
-    if (hands.card_type == SEQUENCE_HAND) {
+    if (hand.card_type == SEQUENCE_HAND) {
       eval += INFINITY_EVAL_M;
     }
-    eval += hands.num_of_cards * INFINITY_EVAL_S;
+    eval += hand.num_of_cards * INFINITY_EVAL_S;
   }
 
   /* SCardをiだけ右シフトしたとき1の位に1が立てば，
@@ -80,40 +84,58 @@ int default_evaluate_hand(board_info hands, state_type *state) {
   /* 革命の場合は，逆にする． */
   if (!state->rev) {
     for (int i=1; i<=14; i++) {
-      if ((hands.SCard >> i) % 2) { eval += i; }
+      if ((hand.SCard >> i) % 2) { eval += i; }
     }
   }
   else {
     for (int i=0; i<14; i++) {
-      if ((hands.WCard >> i) % 2) { eval += (14-i); }
+      if ((hand.WCard >> i) % 2) { eval += (14-i); }
     }
   }
 
   return eval;
 }
 
-int is_possible_hand(board_info hands, state_type *state) {
+/* 一旦，例外的に重要な札がある手のときは1を返し，そうでなければ0を返すことにする． */
+int evaluate_exceptional_hand(board_info hand) {
+  int eval = 0;
+
+  /* 8を含む着手の場合 */
+  uint64_t card_8 = 1 << 8;
+  if (hand.WCard >= card_8 && hand.SCard <= card_8) {
+    return 1;
+  }
+
+  /* Jokerを含む着手の場合 */
+  if (hand.joker) {
+    return 1;
+  }
+
+  return 0;
+}
+
+int is_possible_hand(board_info hand, state_type *state) {
   if (state->onset) { return 1; }
 
   /* 場と同じ種類の手である必要がある． */
-  if (state->sequence && hands.card_type != SEQUENCE_HAND)  { return 0; }
-  if (!state->sequence && hands.card_type == SEQUENCE_HAND) { return 0; }
+  if (state->sequence && hand.card_type != SEQUENCE_HAND)  { return 0; }
+  if (!state->sequence && hand.card_type == SEQUENCE_HAND) { return 0; }
 
   /* 場のカードと同枚数である必要がある． */
-  if (state->qty != hands.num_of_cards) { return 0; }
+  if (state->qty != hand.num_of_cards) { return 0; }
 
   /* 出すカードの最小が場のカードの最大より強い必要がある． */
   /* state->ordは0..14の整数で，大きいほど強い．0と14はJoker用． */
-  /* 対して，hands.SCardは15bit整数で，小さいほど強い． */
+  /* 対して，hand.SCardは15bit整数で，小さいほど強い． */
   /* そのため，14-state->ordで小さいほど強くさせ，さらにbitシフトでSCardと比較可能にする． */
   uint64_t state_SCard = (1 << (14-state->ord));
-  if (!state->rev && state_SCard <= hands.WCard) { return 0; }
-  if (state->rev  && state_SCard >= hands.SCard) { return 0; }
+  if (!state->rev && state_SCard <= hand.WCard) { return 0; }
+  if (state->rev  && state_SCard >= hand.SCard) { return 0; }
 
   /* しばりなら，スートが一致する必要がある． */
   if (state->lock) {
     uint64_t state_suit = (state->suit[0] << 3) + (state->suit[1] << 2) + (state->suit[2] << 1) + state->suit[3];
-    if (state_suit != hands.suit) { return 0; }
+    if (state_suit != hand.suit) { return 0; }
   }
 
   return 1;
