@@ -126,7 +126,7 @@ int is_possible_hand(board_info hand, state_type *state) {
 
   /* スぺ3返し． */
   uint64_t spade3 = 1 << (15*3 + 13);
-  if ((state.ord == 0 || state.ord == 14) && hand.cards == spade3) { return 1; }
+  if ((state->ord == 0 || state->ord == 14) && hand.cards == spade3) { return 1; }
 
   /* 出すカードの最小が場のカードの最大より強い必要がある． */
   /* state->ordは0..14の整数で，大きいほど強い．0と14はJoker用． */
