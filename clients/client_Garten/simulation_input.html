@@ -1,0 +1,129 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src='simulation_input.js'></script>
+    <style>
+      table {
+        table-layout: fixed;
+        width: 75%;
+      }
+      th {
+        text-align: left;
+      }
+      td {
+        text-align: left;
+        width: 4ex;
+      }
+      input[type="text"] {
+        box-sizing: border-box;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <h2>自分の手札</h2>
+  <table id="my_cards" border="1">
+    <tr>
+      <th></th><th></th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>J</th><th>Q</th><th>K</th><th>A</th><th>2</th><th></th>
+    </tr>
+    <tr>
+      <th>スペード</th><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td>
+    </tr>
+    <tr>
+      <th>ハート</th><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td>
+    </tr>
+    <tr>
+      <th>ダイヤ</th><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td>
+    </tr>
+    <tr>
+      <th>クラブ</th><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td>
+    </tr>
+  </table>
+  <h2>相手の手札全体</h2>
+  <table id="opponents_cards" border="1">
+    <tr>
+      <th></th><th></th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>J</th><th>Q</th><th>K</th><th>A</th><th>2</th><th></th>
+    </tr>
+    <tr>
+      <th>スペード</th><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td>
+    </tr>
+    <tr>
+      <th>ハート</th><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td>
+    </tr>
+    <tr>
+      <th>ダイヤ</th><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td>
+    </tr>
+    <tr>
+      <th>クラブ</th><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td>
+    </tr>
+  </table>
+  <h2>各プレイヤの手札枚数</h2>
+  <table id="state_player_qty" border="1" style="width: 35%;">
+    <tr>
+      <th>プレイヤ1</th><th>プレイヤ2</th><th>プレイヤ3</th><th>プレイヤ4</th><th>プレイヤ5</th>
+    </tr>
+    <tr>
+      <td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td>
+    </tr>
+  </table>
+  <h2>各プレイヤの座席番号</h2>
+  <table id="state_seat" border="1" style="width: 35%;">
+    <tr>
+      <th>プレイヤ1</th><th>プレイヤ2</th><th>プレイヤ3</th><th>プレイヤ4</th><th>プレイヤ5</th>
+    </tr>
+    <tr>
+      <td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td>
+    </tr>
+  </table>
+  <h2>各プレイヤの階級</h2>
+  <table id="state_player_rank" border="1" style="width: 35%;">
+    <tr>
+      <th>プレイヤ1</th><th>プレイヤ2</th><th>プレイヤ3</th><th>プレイヤ4</th><th>プレイヤ5</th>
+    </tr>
+    <tr>
+      <td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td><td><input type="text" value="0"></td>
+    </tr>
+  </table>
+  <h2>場のスート</h2>
+  <table id="state_suit" style="width: 10%;">
+    <tr>
+      <th>スペード</th><td><input type="checkbox"></td>
+    </tr>
+    <tr>
+      <th>ハート</th><td><input type="checkbox"></td>
+    </tr>
+    <tr>
+      <th>ダイヤ</th><td><input type="checkbox"></td>
+    </tr>
+    <tr>
+      <th>クラブ</th><td><input type="checkbox"></td>
+    </tr>
+  </table>
+  <h2>その他</h2>
+  <table id="simple_states" style="width: 15%;">
+    <tr>
+      <th>場の強さ</th><td><input id="ord" type="text" value="0"></td>
+    </tr>
+    <tr>
+      <th>場のカード枚数</th><td><input id="qty" type="text" value="0"></td>
+    </tr>
+    <tr>
+      <th>階段?</th><td><input id="seq" type="checkbox"></td>
+    </tr>
+    <tr>
+      <th>革命中?</th><td><input id="rev" type="checkbox"></td>
+    </tr>
+    <tr>
+      <th>11バック中?</th><td><input id="b11" type="checkbox"></td>
+    </tr>
+    <tr>
+      <th>縛り中?</th><td><input id="lock" type="checkbox"></td>
+    </tr>
+    <tr>
+      <th>場にカードがない?</th><td><input id="onset" type="checkbox"></td>
+    </tr>
+    <tr>
+      <th>joker持ってる?</th><td><input id="joker" type="checkbox"></td>
+    </tr>
+  </table>
+  <button onclick="save_inputs_as_tsv()">tsv作成&ダウンロード</button>
+</html>

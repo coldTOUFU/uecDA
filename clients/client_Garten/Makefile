@@ -2,15 +2,21 @@ TARGET	= client
 SRCS	= client.c connection.c select_cards.c search_cards.c evaluate_cards.c util.c
 OBJS	= client.o connection.o select_cards.o search_cards.o evaluate_cards.o util.o
 
+TARGET_SIMU	= simulation
+SRCS_SIMU	= simulation.c connection.c select_cards.c search_cards.c evaluate_cards.c util.c
+OBJS_SIMU	= simulation.o connection.o select_cards.o search_cards.o evaluate_cards.o util.o
+
 CC = gcc
 LIBS = -lnsl   
 CFLAGS = -g -O2
 
-all: $(TARGET)
+all: $(TARGET) $(TARGET_SIMU)
 
 $(TARGET): $(OBJS) $(SRCS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
+$(TARGET_SIMU): $(OBJS_SIMU) $(SRCS_SIMU)
+	$(CC) $(CFLAGS) -o $@ $(OBJS_SIMU) $(LIBS)
 
 Makefile: Makefile.in
 	./configure
@@ -19,4 +25,4 @@ Makefile: Makefile.in
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJS) $(TARGET) $(OBJS_SIMU) $(TARGET_SIMU)

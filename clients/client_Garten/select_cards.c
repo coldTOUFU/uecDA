@@ -425,6 +425,7 @@ void select_cards(int out_cards[8][15], int my_cards[8][15], int opponent_cards[
 
     /* 出す手に対する評価値を計算． */
     int eval = evaluate_hand(choosing_my_board, &opponent_stack, &state, &state_simulated);
+    printf("eval: %d\n", eval);
 
     /* 残る手に対する評価値を求める． */
     /* そのために，「空のstate」を作成する．空なので，onsetだけ1にする． */
@@ -442,6 +443,7 @@ void select_cards(int out_cards[8][15], int my_cards[8][15], int opponent_cards[
 
     /* 残る手に対する評価値を計算． */
     int left_eval = evaluate_hand_left(&my_cards_left_stack, &opponent_stack, &dummy_st, &dummy_st);
+    printf("left_eval: %d\n", left_eval);
 
     if (eval+left_eval > best_eval) {
       best_eval = eval+left_eval;
